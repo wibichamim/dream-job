@@ -18,3 +18,6 @@ TextStyle cardTitle = const TextStyle(
 
 TextStyle jobTitle =
     TextStyle(color: darkGray, fontSize: 16, fontWeight: FontWeight.w400);
+
+TextStyle jobSubTitle =
+    TextStyle(color: darkGray, fontSize: 14, fontWeight: FontWeight.w500);

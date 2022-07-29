@@ -1,3 +1,4 @@
+import 'package:dream_job/pages/detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:dream_job/themes.dart';
 
@@ -11,30 +12,40 @@ class JobCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Image.asset(
-          imageurl,
-          width: 45,
-          height: 45,
-        ),
-        const SizedBox(
-          width: 26,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              jobDesc,
-              style: jobTitle,
-            ),
-            Text(
-              company,
-              style: TextStyle(color: lightGray),
-            )
-          ],
-        )
-      ],
+    return InkWell(
+      onTap: (() {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => JobDetail(
+                  company: company, imageurl: imageurl, jobDesc: jobDesc),
+            ));
+      }),
+      child: Row(
+        children: [
+          Image.asset(
+            imageurl,
+            width: 45,
+            height: 45,
+          ),
+          const SizedBox(
+            width: 26,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                jobDesc,
+                style: jobTitle,
+              ),
+              Text(
+                company,
+                style: TextStyle(color: lightGray),
+              )
+            ],
+          )
+        ],
+      ),
     );
   }
 }

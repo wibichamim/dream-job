@@ -15,6 +15,9 @@ class _SignUpState extends State<SignUp> {
   bool isEmailValid = false;
   bool isImageUploaded = false;
 
+  TextEditingController nameController = TextEditingController(text: '');
+  TextEditingController passwordController = TextEditingController(text: '');
+  TextEditingController motivationController = TextEditingController(text: '');
   TextEditingController emailController = TextEditingController(text: '');
 
   @override

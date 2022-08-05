@@ -1,8 +1,12 @@
-import 'package:dream_job/pages/home_page.dart';
+import 'package:dream_job/models/user_model.dart';
+import 'package:dream_job/main.dart';
 import 'package:dream_job/pages/signin_page.dart';
+import 'package:dream_job/providers/auth_provider.dart';
+import 'package:dream_job/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dream_job/themes.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:provider/provider.dart';
 
 class SignUp extends StatefulWidget {
   SignUp({Key? key}) : super(key: key);
@@ -17,11 +21,23 @@ class _SignUpState extends State<SignUp> {
 
   TextEditingController nameController = TextEditingController(text: '');
   TextEditingController passwordController = TextEditingController(text: '');
-  TextEditingController motivationController = TextEditingController(text: '');
+  TextEditingController goalController = TextEditingController(text: '');
   TextEditingController emailController = TextEditingController(text: '');
 
   @override
   Widget build(BuildContext context) {
+    var authProvider = Provider.of<AuthProvider>(context);
+    var userProvider = Provider.of<UserProvider>(context);
+
+    void showError(String message) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: mainRed,
+        ),
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -83,6 +99,7 @@ class _SignUpState extends State<SignUp> {
                       height: 8,
                     ),
                     TextFormField(
+                      controller: nameController,
                       decoration: InputDecoration(
                         hintText: 'Full Name',
                         contentPadding: const EdgeInsets.symmetric(
@@ -162,6 +179,7 @@ class _SignUpState extends State<SignUp> {
                       height: 8,
                     ),
                     TextFormField(
+                      controller: passwordController,
                       obscureText: true,
                       enableSuggestions: false,
                       autocorrect: false,
@@ -196,6 +214,7 @@ class _SignUpState extends State<SignUp> {
                       height: 8,
                     ),
                     TextFormField(
+                      controller: goalController,
                       decoration: InputDecoration(
                         hintText: 'Your Goal',
                         contentPadding: const EdgeInsets.symmetric(
@@ -227,16 +246,25 @@ class _SignUpState extends State<SignUp> {
                             height: 45,
                             child: TextButton(
                               style: TextButton.styleFrom(
-                                  backgroundColor: mainPurple,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(66))),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const Home(),
-                                  ),
-                                );
+                                backgroundColor: mainPurple,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(66),
+                                ),
+                              ),
+                              onPressed: () async {
+                                UserModel? user = await authProvider.register(
+                                    emailController.text,
+                                    passwordController.text,
+                                    nameController.text,
+                                    goalController.text);
+
+                                if (user == null) {
+                                  showError('Email already exists');
+                                } else {
+                                  userProvider.user = user;
+                                  Navigator.pushNamedAndRemoveUntil(
+                                      context, 'home', (route) => false);
+                                }
                               },
                               child: const Text(
                                 'Sign Up',

@@ -18,6 +18,7 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   bool isEmailValid = false;
   bool isImageUploaded = false;
+  bool isLoading = false;
 
   TextEditingController nameController = TextEditingController(text: '');
   TextEditingController passwordController = TextEditingController(text: '');
@@ -244,37 +245,61 @@ class _SignUpState extends State<SignUp> {
                           SizedBox(
                             width: 312,
                             height: 45,
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: mainPurple,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(66),
-                                ),
-                              ),
-                              onPressed: () async {
-                                UserModel? user = await authProvider.register(
-                                    emailController.text,
-                                    passwordController.text,
-                                    nameController.text,
-                                    goalController.text);
+                            child: isLoading
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                      color: mainPurple,
+                                    ),
+                                  )
+                                : TextButton(
+                                    style: TextButton.styleFrom(
+                                      backgroundColor: mainPurple,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(66),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      if (emailController.text.isEmpty ||
+                                          nameController.text.isEmpty ||
+                                          passwordController.text.isEmpty ||
+                                          goalController.text.isEmpty) {
+                                        showError("All fields can't be empty");
+                                      } else {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
 
-                                if (user == null) {
-                                  showError('Email already exists');
-                                } else {
-                                  userProvider.user = user;
-                                  Navigator.pushNamedAndRemoveUntil(
-                                      context, 'home', (route) => false);
-                                }
-                              },
-                              child: const Text(
-                                'Sign Up',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
+                                        UserModel? user =
+                                            await authProvider.register(
+                                                emailController.text,
+                                                passwordController.text,
+                                                nameController.text,
+                                                goalController.text);
+
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+
+                                        if (user == null) {
+                                          showError('Email already exists');
+                                        } else {
+                                          userProvider.user = user;
+                                          Navigator.pushNamedAndRemoveUntil(
+                                              context,
+                                              '/home',
+                                              (route) => false);
+                                        }
+                                      }
+                                    },
+                                    child: const Text(
+                                      'Sign Up',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
                           ),
                           const SizedBox(
                             height: 20,

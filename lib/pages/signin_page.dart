@@ -1,7 +1,11 @@
+import 'package:dream_job/models/user_model.dart';
 import 'package:dream_job/pages/signup_page.dart';
+import 'package:dream_job/providers/auth_provider.dart';
+import 'package:dream_job/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:dream_job/themes.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:provider/provider.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({Key? key}) : super(key: key);
@@ -12,11 +16,25 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   bool isEmailValid = false;
+  bool isLoading = false;
 
   TextEditingController emailController = TextEditingController(text: '');
+  TextEditingController passwordController = TextEditingController(text: '');
 
   @override
   Widget build(BuildContext context) {
+    var authProvider = Provider.of<AuthProvider>(context);
+    var userProvider = Provider.of<UserProvider>(context);
+
+    void showError(String message) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: mainRed,
+        ),
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -117,6 +135,7 @@ class _SignInState extends State<SignIn> {
                       height: 8,
                     ),
                     TextFormField(
+                      controller: passwordController,
                       obscureText: true,
                       enableSuggestions: false,
                       autocorrect: false,
@@ -149,21 +168,57 @@ class _SignInState extends State<SignIn> {
                           SizedBox(
                             width: 312,
                             height: 45,
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                  backgroundColor: mainPurple,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(66))),
-                              onPressed: () {},
-                              child: const Text(
-                                'Sign In',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
+                            child: isLoading
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                      color: mainPurple,
+                                    ),
+                                  )
+                                : TextButton(
+                                    style: TextButton.styleFrom(
+                                        backgroundColor: mainPurple,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(66))),
+                                    onPressed: () async {
+                                      if (emailController.text.isEmpty ||
+                                          passwordController.text.isEmpty) {
+                                        showError("All fields can't be empty");
+                                      } else {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+
+                                        UserModel? user =
+                                            await authProvider.login(
+                                                emailController.text,
+                                                passwordController.text);
+
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+
+                                        if (user == null) {
+                                          showError(
+                                              'Email or Password is invalid');
+                                        } else {
+                                          userProvider.user = user;
+                                          Navigator.pushNamedAndRemoveUntil(
+                                              context,
+                                              '/home',
+                                              (route) => false);
+                                        }
+                                      }
+                                    },
+                                    child: const Text(
+                                      'Sign In',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
                           ),
                           const SizedBox(
                             height: 20,

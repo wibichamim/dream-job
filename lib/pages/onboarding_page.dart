@@ -57,7 +57,9 @@ class OnBoarding extends StatelessWidget {
                             backgroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(66))),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/sign-up');
+                        },
                         child: const Text(
                           'Get Started',
                           style: TextStyle(
